@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>加载更多</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        li {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-bottom: 5px;
+            text-align: left;
+            border-radius: 3px;
+            list-style: none;
+        }
+        .btn {
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            width: 80px;
+            border: 1px solid #e27272;
+            border-radius: 3px;
+            text-align: center;
+            text-decoration: none;
+            color: #e27272;
+        }
+
+        .btn:hover {
+            background: green;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <ul id="ct">
+    </ul>
+    <!-- <a id="load-more" class="btn" href="javascript:void(0)">加载更多</a> -->
+    <a id="load-more" class="btn" href="#">加载更多</a>
+
+    <script>
+        /* var btn = document.querySelector('#load-more')
+        var ct = document.querySelector('#ct')
+        var pageIndex = 0
+
+        var isDataArrive = true
+
+        btn.addEventListener('click', function(e){
+            if(!isDataArrive){
+                return;
+            }
+
+            var xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    if(xhr.status === 200 || xhr.status === 304){
+                        var results = JSON.parse(xhr.responseText)
+                        console.log(results)
+                        
+                        // 方式1：字符串拼接
+                        // var html = ''
+                        // for(var i = 0; i < results.length; i++){
+                        //     html += '<li>' + results[i] + '</li>'
+                        // }
+                        // ct.innerHTML = html
+    
+                        // 方式2：添加 dom
+                        var fragment = document.createDocumentFragment()
+                        for(var i = 0; i < results.length; i++){
+                            var node = document.createElement('li')
+                            node.innerText = results[i]
+                            fragment.appendChild(node)
+    
+                        }
+                        ct.appendChild(fragment)
+                        pageIndex = pageIndex + 5
+                    }else {
+                        console.log('出错了')
+                    }
+                    isDataArrive = true
+                }
+            }
+            xhr.open('get', '/loadMore?index='+pageIndex+'&length=5', true)
+            xhr.send()
+            isDataArrive = false
+
+            // var data = getData()
+            // var html = getHtml()
+            // render(html)
+        }) */
+
+
+        
+        var btn = document.querySelector('#load-more')
+        var ct = document.querySelector('#ct')
+        var pageIndex = 0
+
+        var isDataArrive = true
+
+        btn.addEventListener('click', function(e){
+            e.preventDefault()
+
+            if(!isDataArrive){
+                return;
+            }
+
+            // loadData(renderPage)
+            loadData(function(news){
+                renderPage(news)
+                pageIndex = pageIndex + 5
+                isDataArrive = true
+            })
+            isDataArrive = false
+        })
+
+        // 加载数据
+        function loadData(callback){
+            ajax({
+                type: 'get',
+                url: '/loadMore',
+                data: {
+                    index: pageIndex,
+                    length: 5
+                },
+                success: callback,
+                error: function(){
+                    console.log('error')
+                }
+            })
+
+            /* var xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    if(xhr.status === 200 || xhr.status === 304){
+                        var results = JSON.parse(xhr.responseText)
+                        console.log(results)
+                        callback(results)
+                        pageIndex = pageIndex + 5
+                    }else {
+                        console.log('出错了')
+                    }
+                    isDataArrive = true
+                }
+            }
+            xhr.open('get', '/loadMore?index='+pageIndex+'&length=5', true)
+            xhr.send()
+            isDataArrive = false */
+        }
+
+        // 渲染页面
+        function renderPage(news){
+            var fragment = document.createDocumentFragment()
+            for(var i = 0; i < news.length; i++){
+                var node = document.createElement('li')
+                node.innerText = news[i]
+                fragment.appendChild(node)
+            }
+            ct.appendChild(fragment)       
+        }
+
+        // ajax 封装
+        /* function ajax(options){
+            var xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    if(xhr.status === 200 || xhr.status === 304){
+                        var results = JSON.parse(xhr.responseText)
+                        console.log(results)
+                        options.onSuccess(results)
+                        
+                    }else {
+                        options.onError()
+                    }
+                }
+            }
+            var query = '?'
+            for(key in options.data){
+                query += key + '=' + options.data[key] + '&'
+            }
+            query = query.substr(0, query.length - 1)
+            xhr.open(options.type, options.url + query, true)
+            xhr.send()
+        } */
+
+
+        // ajax 封装
+        function ajax(opts){
+            opts.success = opts.success || function(){}
+            opts.error = opts.error || function(){}
+            opts.type = opts.type || 'get'
+            opts.dataType = opts.dataType || 'json'
+            opts.data = opts.data || {}
+
+            var dataStr = ''
+            for(key in opts.data){
+                dataStr += key + '=' + opts.data[key] + '&'
+            }
+            
+            var xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    if(xhr.status === 200 || xhr.status === 304){
+                        if(opts.dataType === 'text'){
+                            opts.success(xhr.responseText)
+                        }
+                        if(opts.dataType === 'json'){
+                            var json = JSON.parse(xhr.responseText)
+                            opts.success(json)
+                        }
+                    }else {
+                        opts.error()
+                    }
+                }
+            }
+
+            dataStr = dataStr.substr(0, dataStr.length - 1)
+
+            if(opts.type.toLowerCase() === 'post'){
+                xhr.open(opts.type, opts.url, true)
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+                xhr.send(dataStr)
+            }
+            if(opts.type.toLowerCase() === 'get'){
+                xhr.open(opts.type, opts.url + '?' + dataStr, true)
+                xhr.send()
+            }
+            
+            
+        }
+    </script>
+</body>
+</html>
