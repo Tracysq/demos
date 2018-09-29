@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>post message - b.html</title>
+</head>
+<body>
+    <input id="input" type="text" placeholder="http://b.xxx.com:8090/b.html">
+
+    <script>
+        var input = document.querySelector('#input');
+        input.addEventListener('input', function(){
+            window.parent.postMessage(this.value, '*');
+            console.log(this.value)
+        });
+        
+        window.addEventListener('message', function(e){
+            input.value = e.data;
+            console.log(e.data);
+            /* console.log(e.source);
+            console.log(e.origin); */
+        });
+    </script>
+</body>
+</html>

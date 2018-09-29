@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>post message - a.html</title>
+    <style>
+        .ct{
+            width: 910px;
+            margin: auto;
+        }
+        .main{
+            float: left;
+            width: 450px;
+            height: 300px;
+            border: 1px solid #ccc;
+        }
+        .main input{
+            margin: 20px;
+            width: 200px;
+        }
+        .iframe{
+            float: right;
+        }
+        iframe{
+            width: 450px;
+            height: 300px;
+            border: 1px dashed #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="ct">
+        <h1>使用postMessage跨域</h1>
+        <div class="main">
+            <input type="text" placeholder="http://a.xxx.com:8090/a.html">
+        </div>
+        <iframe src="http://localhost:8090/b.html" frameborder="0"></iframe>
+        <!-- <iframe src="http://127.0.0.1:8090/b.html" frameborder="0"></iframe> -->
+    </div>
+
+    <script>
+        var input = document.querySelector('.ct input');
+        input.addEventListener('input', function(){
+            window.frames[0].postMessage(this.value, '*');
+            console.log(this.value)
+        });
+
+        window.addEventListener('message', function(e){
+            input.value = e.data;
+            console.log(e.data);
+        });
+    </script>
+</body>
+</html>

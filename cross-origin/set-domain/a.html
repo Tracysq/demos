@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>降域 - a.html</title>
+</head>
+<body>
+    <div class="ct">
+        <h1>使用降域实现跨域</h1>
+        <div class="main">
+            <input type="text" placeholder="http://a.xxx.com:8080/a.html">
+        </div>
+        <iframe src="http://b.xxx.com:8080/b.html" frameborder="0"></iframe>
+    </div>
+
+    <script>
+        var input = document.querySelector('.main input');
+        input.addEventListener('input', function(){
+            console.log(this.value);
+            window.frames[0].document.querySelector('input').value = this.value;
+        });
+
+        document.domain = 'xxx.com';
+    </script>
+</body>
+</html>
