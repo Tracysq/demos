@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://js.jirengu.com
+
+Copyright (c) 2018 by Tracysq (http://js.jirengu.com/fucib/3/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>复杂的模板引擎</title>
+</head>
+<body>
+
+<script id="jsbin-javascript">
+var TemplateEngine = function(tpl, data){
+  var reg = /<%([^%>]+)?%>/g;
+  var regJS = /^( )?(^if|else|switch|case|default|break|for|{|})(.*)/g;
+  var cursor = 0;
+  var code = 'var line = "";\n';
+  var match;
+  
+  var isExp = function(str){
+    if(str.match(regJS)){
+      return str;
+    }else {
+      return 'line += ' + str + ';';
+    }
+  };
+  
+  while(match = reg.exec(tpl)){
+    if(cursor !== match.index){
+      code += 'line += "' + tpl.slice(cursor, match.index).replace(/"/g, '\\"') + '";\n';
+    }    
+    code += isExp(match[1])+'\n';
+    cursor = match.index + match[0].length;
+  }
+  code += tpl.substr(cursor, tpl.length - 1);
+  code += 'return line;';
+  console.log(code);
+  var str = new Function(code.replace(/[\r\t\n]/g, '')).apply(data);
+  return str;
+};
+
+var template = 
+'My skills:' + 
+'<%if(this.showSkills) {%>' +
+    '<%for(var index in this.skills) {%>' + 
+    '<a href="#"><%this.skills[index]%></a>' +
+    '<%}%>' +
+'<%} else {%>' +
+    '<p>none</p>' +
+'<%}%>';
+
+var string = TemplateEngine(template, {
+    skills: ["js", "html", "css"],
+    showSkills: true
+});
+
+document.body.innerHTML = string;
+</script>
+</body>
+</html>
